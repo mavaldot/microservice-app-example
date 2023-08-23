@@ -9,10 +9,27 @@ on:
 jobs:
 
   build:
-
+    name: Build Docker image
     runs-on: self-hosted
+
+    strategy:
+      matrix:
+        # service: [auth-api, frontend, log-message-processor, todos-api, users-api]
+        service: [auth-api, frontend]
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Test
       run: cd ~; echo `date` >> test
+
+    - name: Build Dockerfile
+      env:
+        DOCKERHUB_USERNAME: ${{secrets.DOCKERHUB_USERNAME}}
+        DOCKERHUB_PASSWORD: ${{secrets.DOCKERHUB_PASSWORD}}
+        SSH_PRIVATE_KEY: ${{secrets.SSH_KEY}}
+      run: |
+        cd ${{matrix.service}}
+        docker build -t $DOCKERHUB_USERNAME/${{matrix.service}}:prod .
+        echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+        docker push $DOCKERHUB_USERNAME/${{matrix.service}}:prod
