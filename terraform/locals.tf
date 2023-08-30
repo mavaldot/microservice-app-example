@@ -67,6 +67,7 @@ locals {
     sudo service docker start
     sudo usermod -a -G docker ec2-user
     touch test
+    echo ${var.docker_tag} | tee dockertag
     EOF
 
   frontend_user_data = <<-EOF
