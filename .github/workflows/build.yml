@@ -1,4 +1,4 @@
-name: CI CD
+name: Build and plan
 
 on:
   pull_request:
@@ -9,6 +9,7 @@ env:
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
   TF_WORKSPACE: "microservice-app"
   CONFIG_DIRECTORY: "./terraform"
+  TF_VAR_docker_tag: "${{vars.VERSION}}"
 
 jobs:
 
