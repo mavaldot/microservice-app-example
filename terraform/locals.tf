@@ -79,7 +79,7 @@ locals {
     sudo usermod -a -G docker ec2-user
     sudo docker run --rm -dp 80:80 -p 443:80 -e PORT=80 \
     -e AUTH_API_ADDRESS=http://${module.alb.lb_dns_name}:8000 -e TODOS_API_ADDRESS=http://${module.alb.lb_dns_name}:8082 \
-    -e http://ZIPKIN_URL=${module.alb.lb_dns_name}:9411/api/v2/spans mvot/frontend-app:${var.docker_tag}
+    -e http://ZIPKIN_URL=${module.alb.lb_dns_name}:9411/api/v2/spans mvot/frontend:${var.docker_tag}
     EOF
 
   auth_user_data = <<-EOF
@@ -90,7 +90,7 @@ locals {
     sudo service docker start
     sudo usermod -a -G docker ec2-user
     sudo docker run --rm -dp 8000:8000 -e JWT_SECRET=PRFT \
-    -e AUTH_API_PORT=8000 -e USERS_API_ADDRESS=http://${module.alb.lb_dns_name}:8083 mvot/auth-app:${var.docker_tag}
+    -e AUTH_API_PORT=8000 -e USERS_API_ADDRESS=http://${module.alb.lb_dns_name}:8083 mvot/auth-api:${var.docker_tag}
     EOF
 
   lmp_user_data = <<-EOF
@@ -101,7 +101,7 @@ locals {
     sudo service docker start
     sudo usermod -a -G docker ec2-user
     sudo docker run --rm -dp 9001:9001 -e REDIS_HOST=http://${module.alb.lb_dns_name} -e REDIS_PORT=6379 \
-    -e REDIS_CHANNEL=log_channel mvot/lmp-app:${var.docker_tag}
+    -e REDIS_CHANNEL=log_channel mvot/log-message-processor:${var.docker_tag}
     EOF
 
   todos_user_data = <<-EOF
@@ -114,7 +114,7 @@ locals {
     sleep 60
     sudo docker run --rm -dp 8082:8082 -e JWT_SECRET=PRFT -e TODO_API_PORT=8082 \
     -e REDIS_HOST=${module.ec2_instance["redis"].private_ip} -e REDIS_PORT=6379 -e REDIS_CHANNEL=log_channel \
-    -e ZIPKIN_URL=http://${module.alb.lb_dns_name}:9411/api/v2/spans mvot/todos-app:${var.docker_tag}
+    -e ZIPKIN_URL=http://${module.alb.lb_dns_name}:9411/api/v2/spans mvot/todos-api:${var.docker_tag}
     EOF
 
   users_user_data = <<-EOF
@@ -124,7 +124,7 @@ locals {
     sudo yum install -y docker
     sudo service docker start
     sudo usermod -a -G docker ec2-user
-    sudo docker run --rm -dp 8083:8083 -e JWT_SECRET=PRFT -e SERVER_PORT=8083 mvot/users-app:${var.docker_tag}
+    sudo docker run --rm -dp 8083:8083 -e JWT_SECRET=PRFT -e SERVER_PORT=8083 mvot/users-api:${var.docker_tag}
     EOF
 
   zipkin_user_data = <<-EOF
