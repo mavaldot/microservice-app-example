@@ -19,8 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        # service: [auth-api, frontend, log-message-processor, todos-api, users-api]
-        service: [auth-api, frontend]
+        service: [auth-api, frontend, log-message-processor, todos-api, users-api]
 
     steps:
       - uses: actions/checkout@v3
